@@ -8,7 +8,7 @@ import time
 st.set_page_config(page_title="EcoMethod AI Dashboard", page_icon="📊", layout="wide")
 
 st.title("📊 EcoMethod AI - 現地適用性分析與決策儀表板")
-st.markdown("整合 **MCDA 多準則決策**、**風險矩陣** 與 **真實文獻基線**，為森林碳匯與環境復育專案提供量化指標與學術依據。")
+st.markdown("整合 **MCDA 多準則決策**、**風險矩陣** 與 **真實文獻基線**，為森林碳匯專案提供量化指標與學術依據。")
 
 # ==========================================
 # 側邊欄設定
@@ -29,11 +29,11 @@ st.header("📋 1. 現地參數與文獻設定")
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    project_name = st.text_input("專案名稱", "溪頭實驗林碳匯與土壤復育專案")
+    project_name = st.text_input("專案名稱", "溪頭實驗林碳匯專案")
     species = st.text_input("目標樹種", "柳杉 (Cryptomeria japonica)")
 with col2:
     area_size = st.number_input("專案面積 (公頃)", value=50.0, step=10.0)
-    baseline_scenario = st.selectbox("基線情境假設", ["受污染土壤與退化林地復育", "現有人工林", "農地造林"])
+    baseline_scenario = st.selectbox("基線情境假設", ["退化林地復育", "現有人工林", "農地造林"])
 with col3:
     st.info("💡 系統將依據此處設定的樹種與情境，自動檢索對應的真實林學文獻與國內外方法學法規。")
 
