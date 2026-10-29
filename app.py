@@ -1,20 +1,18 @@
 import streamlit as st
-from groq import Groq
+import google.generativeai as genai
 
 # 頁面設定
 st.set_page_config(page_title="EcoMethod AI", page_icon="🌲", layout="wide")
 
 st.title("🌲 EcoMethod AI - 減量專案現地適用性評估引擎")
-st.markdown("基於開源 Meta Llama 3 打造，專為森林碳匯與 ESG 專案設計的方法學適配分析 SaaS 工具。")
+st.markdown("專為森林碳匯與 ESG 專案設計的方法學適配分析 SaaS 工具。")
 
-# 側邊欄設定 (放 API Key 確保安全)
+# 側邊欄設定
 with st.sidebar:
     st.header("🔑 系統設定")
-    st.markdown("請輸入你的 Groq API Key 以啟動引擎：")
-    api_key = st.text_input("Groq API Key", type="password")
-    st.markdown("[👉 點此免費申請 Groq API Key](https://console.groq.com/keys)")
-    st.markdown("---")
-    st.markdown("👨‍💻 核心技術架構：Streamlit + Groq (Meta Llama 3 70B)")
+    st.markdown("請輸入你的 Gemini API Key：")
+    api_key = st.text_input("Gemini API Key", type="password")
+    st.markdown("*(享有每日 1500 次永久免費額度，絕不會扣款)*")
 
 # 主畫面輸入區
 st.header("📋 現地條件輸入")
@@ -31,12 +29,13 @@ with col2:
 # 執行按鈕與邏輯
 if st.button("🚀 生成評估報告", type="primary"):
     if not api_key:
-        st.error("⚠️ 系統鎖定中：請先在左側欄位輸入 Groq API Key！")
+        st.error("⚠️ 系統鎖定中：請先在左側欄位輸入 Gemini API Key！")
     else:
         with st.spinner("⏳ 雲端運算中：AI 正在比對各大方法學並生成報告，請稍候..."):
             try:
-                # 啟動 Groq 客戶端
-                client = Groq(api_key=api_key)
+                # 設定 Gemini API
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
                 
                 # 組合 Prompt 邏輯
                 prompt = f"""
@@ -56,22 +55,14 @@ if st.button("🚀 生成評估報告", type="primary"):
                 4. 需補充關鍵數據 (Missing Data)：若要啟動專案，顧問或業主還需要去現場補測哪些關鍵數據？
                 """
                 
-                # 呼叫開源模型
-                completion = client.chat.completions.create(
-                    model="gemma2-9b-it",
-                    messages=[
-                        {"role": "system", "content": "你是一位專業的環境科學與碳匯顧問。"},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.3
-                )
+                # 呼叫模型
+                response = model.generate_content(prompt)
                 
                 # 顯示結果
-                result = completion.choices[0].message.content
                 st.success("✅ 報告生成完畢！")
                 st.markdown("---")
                 st.markdown(f"### 📄 【{project_name}】AI 評估報告")
-                st.write(result)
+                st.write(response.text)
                 
             except Exception as e:
-                st.error(f"❌ 發生錯誤，請檢查 API Key 是否正確。錯誤代碼：{e}")
+                st.error(f"❌ 發生錯誤，請檢查 API Key 是否正確。詳細錯誤：{e}")
