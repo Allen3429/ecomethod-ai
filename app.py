@@ -58,7 +58,7 @@ if st.button("🚀 生成評估報告", type="primary"):
                 
                 # 呼叫開源模型
                 completion = client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                    model="mixtral-8x7b-32768",
                     messages=[
                         {"role": "system", "content": "你是一位專業的環境科學與碳匯顧問。"},
                         {"role": "user", "content": prompt}
