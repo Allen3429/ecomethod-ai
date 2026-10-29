@@ -39,9 +39,9 @@ with col3:
 
 col_text1, col_text2 = st.columns(2)
 with col_text1:
-    soil_env = st.text_area("土壤與環境觀測數據", "海拔約1100公尺。土壤具鎳(Ni)重金屬污染觀測紀錄，現正規劃導入植物微生物燃料電池(PMFC)進行修復，需評估此擾動對土壤碳層之影響。", height=120)
+    soil_env = st.text_area("土壤與環境觀測數據", "海拔約1200公尺。", height=120)
 with col_text2:
-    land_history = st.text_area("林地歷史與現況", "過往為人工林，無近期毀林紀錄，具備景觀生態學之斑塊與廊道連結價值。", height=120)
+    land_history = st.text_area("林地歷史與現況", "過往為人工林，2025年丹娜斯颱風影響，紅檜倒了不少，現已補植幼樹。", height=120)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -87,19 +87,36 @@ if st.button("🚀 執行矩陣運算與生成報告", type="primary", use_conta
             model = genai.GenerativeModel('gemini-3.8-flash')
             
             prompt = f"""
-            你是一位精通林學、景觀生態學及碳匯方法學（如 VCS, 台灣環境部造林與植林）的頂尖數據分析師。
-            請根據以下參數進行深度分析，並且【每一項決策與風險都必須提供真實文獻或法規作為判斷依據】。
+            你是一位具備碳稽核員資格的林學、環境科學、資料科學專家。
+            本次任務是針對特定林地進行「碳匯專案立項可行性評估」。你必須嚴格遵守以下分析框架，嚴禁生成模稜兩可的冗言贅字。
 
-            【專案參數】
-            專案名稱：{project_name} | 面積：{area_size} 公頃
-            目標樹種：{species} | 基線情境：{baseline_scenario}
-            土壤環境：{soil_env} | 林地歷史：{land_history}
+            【專案與環境參數】
+            目標標的：{project_name} | 面積：{area_size} 公頃
+            樹種：{species} | 基線情境：{baseline_scenario}
+            土壤環境：{soil_env}
+            林地歷史：{land_history}
 
-            【輸出規範：嚴格使用 Markdown 表格，並於表格後方補充文獻支持】
-            1. 歷史基線與文獻回顧 (Baseline & Literature)：引述 1-2 篇與該樹種或該土壤修復技術（如 PMFC 對重金屬鎳的移除或碳排影響）相關的真實學術概念或歷史資料。
-            2. 方法學 MCDA 決策矩陣：挑選2-3個相關方法學。欄位包含：方法學名稱、適用度評分(1-10)、邊界契合度、【判斷依據(Justification)】。
-            3. 風險與衝擊評估矩陣：列出3個潛在紅燈風險。欄位包含：風險因子、衝擊程度、【法規或科學支持依據】、緩解策略。
-            4. 關鍵數據補測清單：列出急需前往現場實測的3項數據。
+            【系統強制指令 (System Constraints)】
+            1. 絕對誠實原則：在引述文獻或法規時，若資料庫中無明確對應的真實文獻，請直接輸出「依目前資料庫查無直接相關文獻，建議實地勘測」，嚴禁捏造期刊名稱或作者。
+            2. 聚焦林業方法學：MCDA 評估僅限於 A/R (造林與植林)、IFM (改善森林管理) 兩大類別之國際(如 VCS VM0047, AR-ACM0003) 或台灣環境部認可之方法學。
+
+            【請以 Markdown 表格輸出以下四大模組】
+
+            ### 1. 基線與額外性檢核 (Baseline & Additionality)
+            *   法規額外性：此林地歷史是否屬於法定義務造林？(是/否/需釐清)
+            *   財務額外性：在無碳權收益下，該復育或疏伐計畫是否具備商業可行性？
+            *   科學文獻基線：請簡述 {species} 在相似海拔或 {baseline_scenario} 情境下的平均固碳潛力，並附上真實文獻概念。
+
+            ### 2. 方法學 MCDA 決策矩陣 (Methodology Decision Matrix)
+            請嚴格依據以下 3 個維度進行 1-10 分的量化評估：(A) 測量與監測可行性 (B) 洩漏風險可控性 (C) 方法學適用邊界。
+            表格欄位：方法學代號 | 總分 | 維度A得分 | 維度B得分 | 維度C得分 | 關鍵扣分事由
+
+            ### 3. 現地紅燈風險矩陣 (Red-Flag Risk Matrix)
+            針對 {soil_env} 與 {land_history} 提取 2 項最可能導致專案遭第三方查驗機構 (VVB) 退回的風險。
+            表格欄位：風險因子 | 違反之方法學條件 | 衝擊程度(高/中/低) | 顧問緩解建議
+
+            ### 4. 落地行動清單 (Action Items)
+            列出專案若要推進，下一步必須在現地執行的 3 項具體環境取樣或測量行動。
             """
             
             response = model.generate_content(prompt, stream=True)
